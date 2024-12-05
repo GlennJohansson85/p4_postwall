@@ -2,18 +2,17 @@ import os
 from pathlib import Path
 import dj_database_url
 
+# Load environment variables from env.py
 if os.path.isfile('env.py'):
     import env
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+# Django
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
-
 DEBUG = False
-
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -21,15 +20,11 @@ ALLOWED_HOSTS = [
     'p4postwall-4a255b5600ea.herokuapp.com',
 ]
 
-
 CSRF_TRUSTED_ORIGINS = [
     'https://p4postwall-4a255b5600ea.herokuapp.com'
 ]
 
-
 AUTH_USER_MODEL = 'accounts.Profile'
-
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -43,7 +38,6 @@ INSTALLED_APPS = [
     'storages',
     'gunicorn',
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -139,36 +133,29 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # AWS S3 Configuration
-if 'USE_AWS' in os.environ:
-    # AWS S3 bucket settings
+if os.environ.get('USE_AWS') == 'True':
     AWS_S3_OBJECT_PARAMETERS = {
         'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
         'CacheControl': 'max-age=94608000',
     }
 
-    AWS_STORAGE_BUCKET_NAME = 'p4postwall'
-    AWS_S3_REGION_NAME = 'eu-north-1'
-    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')y
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"  # Dynamic custom domain
 
     # Static and media files storage classes
     STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-    STATICFILES_LOCATION = 'static'
-    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'  # Ensure correct storage class for media
     MEDIAFILES_LOCATION = 'media'
 
     # Override static and media URLs in production
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 
 else:
-    # Local file storage for static and media
+    # Local file storage for static and media in development
     STATIC_URL = '/static/'
-    STATICFILES_DIRS = [BASE_DIR / 'static']
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
-
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
-
-    print(f"USE_AWS={os.environ.get('USE_AWS')}")
