@@ -75,17 +75,17 @@ MESSAGE_TAGS = {
 }
 
 # Database configuration (SQLite by default, switches to Postgres in production)
-#if 'DATABASE_URL' in os.environ:
-#    DATABASES = {
-#        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-#    }
-#else:
-#    DATABASES = {
-#        'default': {
-#            'ENGINE': 'django.db.backends.sqlite3',
-#            'NAME': BASE_DIR / 'db.sqlite3',
-#        }
-#    }
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
