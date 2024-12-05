@@ -5,11 +5,15 @@ import dj_database_url
 if os.path.isfile('env.py'):
     import env
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
+
 DEBUG = False
+
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -17,16 +21,16 @@ ALLOWED_HOSTS = [
     'p4postwall-4a255b5600ea.herokuapp.com',
 ]
 
-# CSRF trusted origins
+
 CSRF_TRUSTED_ORIGINS = [
     'https://p4postwall-4a255b5600ea.herokuapp.com'
 ]
 
-# Custom user model
+
 AUTH_USER_MODEL = 'accounts.Profile'
 
 
-# Installed applications
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,7 +44,7 @@ INSTALLED_APPS = [
     'gunicorn',
 ]
 
-# Middleware configuration
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -53,7 +57,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'p4_postwall.urls'
 
-# Templates configuration
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -72,16 +76,16 @@ TEMPLATES = [
     },
 ]
 
-# WSGI application
+
 WSGI_APPLICATION = 'p4_postwall.wsgi.application'
 
-# Alert messages configuration
+
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# Database configuration (SQLite by default, switches to Postgres in production)
+# DATABASE (SQLite by default, switches to Postgres in production)
 if 'DATABASE_URL' in os.environ:
     DATABASES = {
         'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
@@ -94,7 +98,7 @@ else:
         }
     }
 
-# Password validation
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -111,7 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -135,7 +138,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 
-# AWS S3 settings for production
+# AWS S3 Configuration
 if 'USE_AWS' in os.environ:
     # AWS S3 bucket settings
     AWS_S3_OBJECT_PARAMETERS = {
@@ -147,9 +150,9 @@ if 'USE_AWS' in os.environ:
     AWS_S3_REGION_NAME = 'eu-north-1'
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.eu-north-1.amazonaws.com'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
 
-    # Static and media files
+    # Static and media files storage classes
     STATICFILES_STORAGE = 'custom_storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
     DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
@@ -158,3 +161,12 @@ if 'USE_AWS' in os.environ:
     # Override static and media URLs in production
     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
+
+else:
+    # Local file storage for static and media
+    STATIC_URL = '/static/'
+    STATICFILES_DIRS = [BASE_DIR / 'static']
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
