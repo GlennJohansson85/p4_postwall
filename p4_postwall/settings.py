@@ -14,13 +14,13 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    'postwall-XXXXXXXX.herokuapp.com',
+    'p4postwall-4a255b5600ea.herokuapp.com',
 ]
 
 # CSRF trusted origins
-#CSRF_TRUSTED_ORIGINS = [
-#    'https://postwall-XXXXXXXX.herokuapp.com'
-#]
+CSRF_TRUSTED_ORIGINS = [
+    'https://p4postwall-4a255b5600ea.herokuapp.com'
+]
 
 AUTH_USER_MODEL = 'accounts.Profile'
 
