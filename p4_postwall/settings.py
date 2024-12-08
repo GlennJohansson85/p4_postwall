@@ -7,7 +7,7 @@ import dj_database_url
 if os.path.isfile('env.py'):
     import env
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Django
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
@@ -15,9 +15,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', '')
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
     'p4postwall-4a255b5600ea.herokuapp.com',
+    'localhost',
+    '127.0.0.1'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -61,10 +61,9 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media',
-                'accounts.context_processors.profile_context',
+                'django.template.context_processors.csrf',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -79,14 +78,12 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -119,12 +116,12 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 # Local Static & Media Configuraiton
-STATIC_URL                  = '/static/'
-STATICFILES_DIRS            = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT                 = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_ROOT                  = os.path.join(BASE_DIR, 'media')
-MEDIA_URL                   = '/media/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Deployed Static & Media Configuration
 if 'USE_AWS' in os.environ:
