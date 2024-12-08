@@ -30,60 +30,65 @@ def postwall(request):
 
 
 @login_required
-def post(request):
+def post(request, post_id=None):
+    """
+    Handles creating and updating posts.
+
+    If `post_id` is provided, the view attempts to update the specified post.
+    Otherwise, it creates a new post. Only the post author or an admin can
+    update a post. The logic ensures compatibility with local and deployed (e.g., S3) environments.
+    """
+
+    # If `post_id` is provided, retrieve the post for updating
+    if post_id:
+        post = get_object_or_404(Post, id=post_id)
+
+        # Ensure only the post author or an admin can update the post
+        if request.user != post.user and not request.user.is_staff:
+            return HttpResponseForbidden("You are not authorized to update this post.")
+    else:
+        # Otherwise, initialize a new post
+        post = None
 
     if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES)
+        # If updating, pre-fill the form with the existing instance
+        form = PostForm(request.POST, request.FILES, instance=post)
 
         if form.is_valid():
-            post = form.save(commit=False)
-            post.user = request.user
-            post.save()
+            updated_post = form.save(commit=False)
+            updated_post.user = request.user  # Ensure the post is linked to the user
+            updated_post.save()
+            messages.success(request, "Post saved successfully.")
             return redirect('postwall')
-
+        else:
+            messages.error(request, "There was an error saving your post.")
     else:
-        form = PostForm()
+        # Initialize the form for creating or editing
+        form = PostForm(instance=post)
 
     context = {
-        'form': form
+        'form': form,
+        'post': post,  # Pass the post instance for context
     }
 
     return render(request, 'post.html', context)
 
 
 def post_detail(request, post_id):
-    """
-    Renders the details of a specific post.
-
-    Retrieves a post identified by its `post_id` and displays it along with all comments
-    associated with the post. Users can see the larger version of the post's image and all comments
-    related to that post. The post uploader/admin can delete the post/comments.
-    """
-
-    # Get the post by ID or return a 404 error if not found
     post = get_object_or_404(Post, id=post_id)
-    # Fetch all related comments for that post
     comments = post.comments.all()
 
-    # Check if the request is a POST (indicating a form submission)
     if request.method == 'POST':
-        # Instantiate a CommentForm with the submitted data.
         comment_form = CommentForm(request.POST)
 
-        # If CommentForm is valid
         if comment_form.is_valid():
-            # Get the profile of the currently logged-in user
             profile = get_object_or_404(Profile, user=request.user)
-            # Save the comment form with the associated profile and post
             comment_form.save(user=profile, post=post)
-            # Redirect the user to the postwall page after successfully saving the comment
             return redirect('postwall')
 
-    # If not POST, create an empty CommentForm instance for displaying the form
     else:
         comment_form = CommentForm()
 
-    # Prepare the data (post, comments, form, current user) to pass to the template
     context = {
         'post': post,
         'comments': comments,
@@ -91,7 +96,6 @@ def post_detail(request, post_id):
         'user': request.user,
     }
 
-    # Render the 'post_detail.html' template with the context data.
     return render(request, 'post_detail.html', context)
 
 

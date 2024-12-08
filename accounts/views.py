@@ -15,12 +15,6 @@ from .models import Profile
 
 
 def register(request):
-    """
-    Handles user registration. If the request method is POST, it processes the form data,
-    creates a new user, and sends an account activation email. On successful registration,
-    redirects the user to the login page.
-    """
-
     # If request method is POST
     if request.method == 'POST':
         # Instantiate the RegistrationForm with the submitted data
