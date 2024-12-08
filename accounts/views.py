@@ -29,19 +29,19 @@ def register(request):
         # If form data is valid
         if form.is_valid():
             # Extract cleaned data from the form
-            email       = form.cleaned_data['email']
-            username    = email.split("@")[0] # Use the part before '@' in the email as the username
-            password    = form.cleaned_data['password']
-            first_name  = form.cleaned_data['first_name']
-            last_name   = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            username = email.split("@")[0]
+            password = form.cleaned_data['password']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
 
             # Create user by data input
             user = Profile.objects.create_user(
-                email       = email,
-                username    = username,
-                password    = password,
-                first_name  = first_name,
-                last_name   = last_name,
+                email = email,
+                username = username,
+                password = password,
+                first_name = first_name,
+                last_name = last_name,
             )
             # Save the user instance to the database
             user.save()
@@ -53,48 +53,33 @@ def register(request):
             # Render the activation email template with context
             message = render_to_string('verification_email.html', {
                 'user': user,
-                # Domain for the activation link
                 'domain': current_site,
-                # Encode user ID
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                # Generate activation token
                 'token': default_token_generator.make_token(user),
             })
-            # Set the recipient email
             to_email = email
 
             # Create EmailMessage instance to send the activation email
             send_email = EmailMessage(
                 mail_subject,
                 message,
-                # Sender's email
                 from_email='Postwall <glenncoding@gmail.com>',
-                # Recipient's email
                 to=[to_email]
             )
 
-            # Specify the content type as HTML
             send_email.content_subtype = "html"
-            # Send the email
             send_email.send()
-            # Display a success message to the user
             messages.success(request, 'Activation link sent to your email')
 
-            # Redirect the user to the login page after successful registration
             return redirect('/accounts/login/')
 
-    # if registstration is not successful
     else:
-        # instantiate an empty RegistrationForm
         form = RegistrationForm()
 
-    # Prepare context for rendering the registration template
     context = {
-        # Pass the form to the template
         'form': form,
     }
 
-    # Render the registration template with the context
     return render(request, 'register.html', context)
 
 
@@ -150,13 +135,6 @@ def logout(request):
 
 
 def activate(request, uidb64, token):
-    """
-    Activates a user account based on the provided unique user ID (uid) and token.
-    Decodes the uid, retrieves the user, and verifies the token. If valid, the user's
-    account is activated and they are redirected to the login page. If invalid, an
-    error message is shown and the user is redirected to the registration page.
-    """
-
     try:
         # Decode the user ID from the base64 format
         uid = urlsafe_base64_decode(uidb64).decode()
@@ -188,12 +166,6 @@ def activate(request, uidb64, token):
 
 @login_required(login_url='login')
 def dashboard(request):
-    """
-    Displays the user's dashboard page. The current authenticated user's profile
-    is passed to the template for rendering. If the user is not logged in, they
-    are redirected to the login page.
-    """
-
     # Retrieve the current authenticated user's profile
     profile = request.user
     # Prepare the context to pass to the template
@@ -206,14 +178,6 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def edit_profile(request):
-    """
-    Allows the authenticated user to edit their profile information.
-    Handles both GET and POST requests to display the form and process updates.
-    If the form is valid and changes are made, the profile is updated,
-    and a success message is displayed. If no changes are made or if
-    there are form errors, appropriate messages are shown.
-    """
-
     # If the request method is POST (i.e., the form has been submitted)
     if request.method == 'POST':
         # Create a form instance with the submitted data and the current user's data
@@ -251,12 +215,6 @@ def edit_profile(request):
 
 @login_required(login_url='login')
 def change_password(request):
-    """
-    Allows the authenticated user to change their password. It verifies the current
-    password, checks if the new password and confirmation match, and updates the
-    password if everything is correct. Appropriate success or error messages are displayed.
-    """
-
     # If the request method is POST (i.e., the form has been submitted)
     if request.method == 'POST':
         # Retrieve the data submitted by the user associated with the current session
@@ -298,14 +256,6 @@ def change_password(request):
 
 
 def reset_password(request, uidb64, token):
-    """
-    Resets the user's password based on the provided UID and token. If the token is valid,
-    it checks if the new password and confirmation match, updates the password, and
-    provides appropriate messages. If the link is
-      invalid, it redirects to the request
-    password reset page.
-    """
-
     try:
         # Decode the user ID from the base64 format
         uid = urlsafe_base64_decode(uidb64).decode()
