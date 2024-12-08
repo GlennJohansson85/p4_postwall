@@ -1,5 +1,6 @@
 from django.shortcuts import render, reverse, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.utils.timezone import localtime
 from accounts.models import Profile
 from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib import messages
@@ -14,7 +15,11 @@ def postwall(request):
 
     for post in posts:
         comments = post.comments.all()
-        posts_with_comments.append({'post': post, 'comments': comments})
+        posts_with_comments.append({
+            'post': post,
+            'comments': comments,
+            'localized_created_at': localtime(post.created_at),
+        })
 
     context = {
         'posts_with_comments': posts_with_comments,
