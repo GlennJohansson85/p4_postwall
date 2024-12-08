@@ -11,26 +11,21 @@ if os.path.isfile('env.py'):
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Django
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
-
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-
-
-# Dynamically get Heroku app URL from environment
-HEROKU_APP_URL = os.environ.get('HEROKU_APP_URL', 'p4postwall.herokuapp.com')
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = 'DEVELOPMENT' in os.environ
 
 
-# Dynamically configure allowed hosts & CSRF trusted origins
 ALLOWED_HOSTS = [
-    HEROKU_APP_URL,
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
+    'p4postwall-4a255b5600ea.herokuapp.com'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    HEROKU_APP_URL
+    'http://www.p4postwall-4a255b5600ea.herokuapp.com'
 ]
 
 
@@ -78,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.profile_context',
             ],
         },
     },
@@ -101,6 +97,7 @@ DATABASES = {
     }
 }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -127,8 +124,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 # Local Static & Media Configuraiton
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -140,18 +136,14 @@ if 'USE_AWS' in os.environ:
     AWS_S3_REGION_NAME      = 'eu-north-1'
     AWS_ACCESS_KEY_ID       = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY   = os.environ.get('AWS_SECRET_ACCESS_KEY')
-
-    # Dynamic custom domain
     AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 
-    # Explicit location configuration for static and media
+    # Static and media files
+    STATICFILES_STORAGE = 'custom_storages.StaticStorage'
     STATICFILES_LOCATION = 'static'
+    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
     MEDIAFILES_LOCATION = 'media'
 
-    # Storage classes
-    STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
-
-    # URLs for static and media files
+    # Override static and media URLs in production
     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
