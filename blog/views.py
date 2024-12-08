@@ -9,78 +9,40 @@ from .models import Post, Comment
 
 
 def postwall(request):
-    """
-    Renders the postwall page displaying all published posts along with their comments.
-
-    Retrieves all posts and their associated comments.
-    The posts are sorted in descending order based on their date, allowing users to see the
-    most recent posts first. The context also includes the current logged-in user, enabling user-specific
-    functionalities, such as adding comments.
-    """
-
-    # Retrieve all published posts, sorted in descending order by their creation date.
     posts_with_comments = []
-    # Initialize a list to hold posts and their associated comments.
     posts = Post.objects.filter(is_published=True).order_by('-created_at')
 
-    # Iterate through each post to fetch its comments.
     for post in posts:
-        # Get all comments related to the current post
         comments = post.comments.all()
-        # Append a dictionary containing the post and its comments to the list.
         posts_with_comments.append({'post': post, 'comments': comments})
 
-    # Prepare the context data to be passed to the template.
     context = {
-        # List of posts and comments for rendering
         'posts_with_comments': posts_with_comments,
-        # The currently logged-in user
         'user': request.user,
     }
 
-    # Render the 'postwall.html' template with the context data.
     return render(request, "postwall.html", context)
 
 
 @login_required
 def post(request):
-    """
-    Allows signed-in users to create a new post.
 
-    Displays a form for creating a new post. When the form is submitted via a POST request,
-    it validates the input data and, if valid, saves the post with the current user as the author.
-    After successfully saving the post, the user is redirected to the postwall page.
-    If the request method is GET, an empty form is presented to the user for input.
-    """
-
-    # Check if the request method is POST (indicating a form submission)
     if request.method == 'POST':
-        # Instantiate a PostForm with the submitted data and any uploaded files.
         form = PostForm(request.POST, request.FILES)
 
-        # Validate the form to ensure all required fields are filled out correctly.
         if form.is_valid():
-            # Create the post instance without saving it to the database yet.
             post = form.save(commit=False)
-            # Assign the current user as the author of the post.
             post.user = request.user
-            # Save the post instance to the database.
             post.save()
-            # Redirect to the postwall after successful post creation.
             return redirect('postwall')
 
-    # If the request method is not POST, create a new empty PostForm instance for displaying the form.
     else:
-        # Instantiate an empty PostForm for GET requests
         form = PostForm()
 
-    # Prepare the context data for rendering the template.
     context = {
-        # Pass the form instance to the template
         'form': form
     }
 
-    # Render the 'post.html' template with the context data.
     return render(request, 'post.html', context)
 
 
