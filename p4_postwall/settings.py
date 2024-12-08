@@ -118,33 +118,32 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
+# Local Static & Media Configuraiton
+STATIC_URL                  = '/static/'
+STATICFILES_DIRS            = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT                 = os.path.join(BASE_DIR, 'staticfiles')
 
-# Static and media file handling for local development
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT                  = os.path.join(BASE_DIR, 'media')
+MEDIA_URL                   = '/media/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
-
-
-# AWS S3 Configuration
+# Deployed Static & Media Configuration
 if 'USE_AWS' in os.environ:
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
-    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = 'p4postwall'
+    AWS_S3_REGION_NAME      = 'eu-north-1'
+    AWS_ACCESS_KEY_ID       = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY   = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
     # Dynamic custom domain
-    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+    AWS_S3_CUSTOM_DOMAIN    = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 
-    # Static and media files storage classes
-    STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
-    MEDIAFILES_LOCATION = 'media'
+    # Explicit location configuration for static and media
+    STATICFILES_LOCATION    = 'static'
+    MEDIAFILES_LOCATION     = 'media'
+
+    # Storage classes
+    STATICFILES_STORAGE     = 'custom_storages.StaticStorage'
+    DEFAULT_FILE_STORAGE    = 'custom_storages.MediaStorage'
 
     # URLs for static and media files
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-
+    STATIC_URL              = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
+    MEDIA_URL               = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'

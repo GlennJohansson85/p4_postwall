@@ -3,9 +3,8 @@ from django.conf import settings
 
 
 class StaticStorage(S3Boto3Storage):
-    location = 'static'
-    file_overwrite = False
+    location = settings.STATICFILES_LOCATION
+
 
 class MediaStorage(S3Boto3Storage):
-    location = 'media'
-    file_overwrite = False
+    location = settings.MEDIAFILES_LOCATION
